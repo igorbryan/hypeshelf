@@ -1,36 +1,67 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# HypeShelf
+> Collect and share the stuff you're hyped about.
 
-## Getting Started
+## Live Demo
+[hypeshelf-igor-bryan.vercel.app](https://hypeshelf-igorbryan-igorbryans-projects.vercel.app?_vercel_share=6k3889DfhEZElHzhIGG2tPxWEoxXbH2a)
 
-First, run the development server:
+## Stack
+- **Next.js 15** (App Router)
+- **Clerk** — authentication with Google
+- **Convex** — reactive backend + real-time database
+- **TypeScript** — strict end-to-end type safety
+- **Tailwind CSS v4**
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Features
+- Public page with the latest recommendations (no login required)
+- Google and Apple login via Clerk
+- Add recommendations with title, genre, link, and blurb
+- Real-time genre filtering
+- RBAC: admins can delete any rec and mark one as Staff Pick
+- Users can create and delete only their own recs
+- Confirmation modal before deleting
+- Responsive dark mode layout
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Technical Decisions
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Role-Based Access Control (RBAC)
+Roles `admin` and `user` are stored in the `users` table on Convex.
+Validation happens **on the backend** (inside mutations), never
+on the frontend alone — preventing bypassing permission rules.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Security
+- No mutation accepts requests without a verified identity
+  using `ctx.auth.getUserIdentity()`
+- The `admin` role can only be assigned manually in the database,
+  with no endpoint exposed
+- The public page is for read-only and exposes no sensitive data
 
-## Learn More
+### Real-time
+Convex queries are all connected clients update automatically
+without polling or manual refresh.
 
-To learn more about Next.js, take a look at the following resources:
+### Authentication
+Clerk handles authentication and issues JWT tokens. Convex
+validates those tokens server-side via the configured JWT issuer,
+ensuring every authenticated request is traceable to a real user.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Running Locally
+1. Clone the repository
+2. Copy `.env.example` to `.env.local` and fill in your keys
+3. `npm install`
+4. `npx convex dev` (first terminal)
+5. `npm run dev` (second terminal)
+6. Open http://localhost:3000
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Environment Variables
+| Variable | Description |
+| `NEXT_PUBLIC_CONVEX_URL` | Convex deployment URL |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk publishable key |
+| `CLERK_SECRET_KEY` | Clerk secret key |
+| `CLERK_JWT_ISSUER_DOMAIN` | Clerk JWT issuer domain |
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Known Issues
+- A "middleware file convention deprecated" warning may appear
+  in the console when running with Turbopack. This is a known
+  false positive caused by a compatibility issue between
+  Turbopack and `@clerk/nextjs`, with no impact on functionality.
+  Ref: https://nextjs.org/docs/messages/middleware-to-proxy
