@@ -2,7 +2,7 @@
 > Collect and share the stuff you're hyped about.
 
 ## Live Demo
-[hypeshelf-igor-bryan.vercel.app](https://hypeshelf-igorbryan-igorbryans-projects.vercel.app?_vercel_share=6k3889DfhEZElHzhIGG2tPxWEoxXbH2a)
+[hypeshelfapp.netlify.app](https://69a5938b0c0f71286f83668d--hypeshelfapp.netlify.app/)
 
 ## Stack
 - **Next.js 15** (App Router)
